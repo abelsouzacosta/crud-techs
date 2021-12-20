@@ -6,7 +6,7 @@ const app = express();
 
 app.use(express.json());
 
-const repositories = [];
+let repositories = [];
 
 app.get("/repositories", (request, response) => {
   return response.json(repositories);
@@ -30,19 +30,20 @@ app.post("/repositories", (request, response) => {
 
 app.put("/repositories/:id", (request, response) => {
   const { id } = request.params;
-  const updatedRepository = request.body;
+  const { title, url, techs } = request.body;
 
-  repositoryIndex = repositories.findindex(repository => repository.id === id);
+  const repo = repositories.find(repo => repo.id === id);
 
-  if (repositoryIndex < 0) {
-    return response.status(404).json({ error: "Repository not found" });
-  }
+  if (!repo)
+    return response.status(404).json({
+      error: "Repository not found"
+    });
 
-  const repository = { ...repositories[repositoryIndex], ...updatedRepository };
+  repo.title = title ? title : repo.title;
+  repo.url = url ? url : repo.url;
+  repo.techs = techs ? techs : repo.techs;
 
-  repositories[repositoryIndex] = repository;
-
-  return response.json(repository);
+  return response.status(200).json(repo);
 });
 
 app.delete("/repositories/:id", (request, response) => {
